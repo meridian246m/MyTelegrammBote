@@ -1,6 +1,6 @@
 <?php
     class MyBot 
-{
+    {
             public           $botToken = '1238564789:AAF1kydnaZ_ZWXlBrCXVyKC5RVeOLynCMvg';
             public function  GetBotToken(){return $this->botToken;}
             public function  SetBotToken($bToken){$this->botToken = $bToken;}
@@ -19,7 +19,36 @@
                 curl_close($curl);
                 return (json_decode($result, 1) ? json_decode($result, 1) : $result);
             }
-}
+            public function SwitchCaseStep_1($message)
+            {
+                    switch ($message) 
+                {
+                    case 'нет':
+                        $send_data = ['text' => 'Приходите еще!'];
+                        break;
+                    case 'да':
+                        $send_data = ['text' => 'Ваше имя?'];
+                        break;
+                    default: //---------------------------------------------------//
+                    $send_data = 
+                    [
+                        'text'=> 'Для использования бота необходимо ответить на несколько вопросов. Ваши данные не будут использованы для рекламной рассылки организаторами конференции и её участниками. Бот обеспечивает анонимность и использовать ваши контакты в корыстных целях не получится. Если вы согластны, нажмите ДА.',
+                        'reply_markup'=>
+                        [
+                            'resize_keyboard' => true, 
+                            'keyboard' =>   
+                            [
+                                [
+                                    ['text' => 'Да'],
+                                    ['text' => 'Нет'],
+                                ]
+                            ]
+                        ]
+                    ];
+                }        
+                return $send_data;
+            }        
+    }
 
     class DataBase
     {
@@ -28,34 +57,50 @@
             private $username = "aa389941_meridian246";
             private $password = "96stYP8BMf7h";
 
-        public function DataBaseExecute($sql)
+        public function DataBaseConnect()
         {
             $conn = mysqli_connect($this->servername, $this->username, $this->password, $this->database);
-            if (!$conn) {die("Connection failed: " . mysqli_connect_error());} else {echo "Connected successfully";}
-            $result = mysqli_query($conn, $sql); 
+            if (!$conn) {return false;} else {return $conn;}
+        }
+        public function DataBaseDisconect($conn)
+        {
             mysqli_close($conn);
-            return $result;
         }
         public function TestChatId($chat_id)
         {
-            $sql="SELECT 1 FROM data_user WHERE chat_id=".$chat_id;
-            $result = mysqli_fetch_assoc($this->DataBaseExecute($sql));
+            $conn   =   $this->DataBaseConnect();
+            $sql    =   "SELECT 1 FROM data_user WHERE chat_id=".$chat_id;
+            $result =   mysqli_fetch_assoc( $result = mysqli_query($conn, $sql) );
+            $this->DataBaseDisconect( $conn );
             if(count($result)>0){return true;}else{return false;}
         }
-        public function InsertNewUser($chat_id)
+        public function GetUserOnID($id)
         {
-            $conn = mysqli_connect($this->servername, $this->username, $this->password, $this->database);
-            if (!$conn) {die("Connection failed: " . mysqli_connect_error());} else {echo "Connected successfully";}
-            $result = mysqli_query($conn, $sql); 
-            mysqli_close($conn);
+            $conn   =   $this->DataBaseConnect();
+            $sql    =   "SELECT 1 FROM data_user WHERE id=".$id;
+            $result =   mysqli_fetch_assoc( $result = mysqli_query($conn, $sql) );
+            $this->DataBaseDisconect( $conn );
             return $result;
         }
+        public function GetUserOnChatID($chat_id)
+        {
+            $conn   =   $this->DataBaseConnect();
+            $sql    =   "SELECT 1 FROM data_user WHERE chat_id=".$chat_id;
+            $result =   mysqli_fetch_assoc( $result = mysqli_query($conn, $sql) );
+            $this->DataBaseDisconect( $conn );
+            return $result;
+        }
+
         public function CreateUser($chat_id)
         {
-            $sql = "INSERT INTO data_user (chat_id,Name,City,Busines,AboutSelf,WhoSearch,Img) VALUES ('$chat_id','na','na',0,'na',0,na)";
-            $result = mysqli_fetch_assoc($this->DataBaseExecute($sql));
-            return $result['chat_id'];
+            $conn   =   $this->DataBaseConnect();
+            $sql = "INSERT INTO data_user (chat_id,Name,City,Busines,AboutSelf,WhoSearch,Img) VALUES ('$chat_id','na','na',0,'na',0,'na')";
+            mysqli_query($conn, $sql);
+            $result = mysqli_insert_id($conn);
+            $this->DataBaseDisconect( $conn );
+            return $result;
         }
+        
     //    public function SetPhotoStore(){}
 
 
