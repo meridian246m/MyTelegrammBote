@@ -10,13 +10,14 @@ $method = 'sendMessage';
 
 $result = $DB->TestChatId($data['chat'] ['id']) ? $result = true : $result = $DB->CreateUser($data['chat'] ['id']);
 
-$send_data = ['text'=>$result];
 if($result==true)
 {
     $send_data = $MyBot->SwitchCaseStep_1($message);
 }
 
 $send_data['chat_id'] = $data['chat'] ['id'];
-$Bot = new MyBot;
 $res = $Bot->sendMessage($method, $send_data, $Bot->botToken);
+
+
+
 ?>
