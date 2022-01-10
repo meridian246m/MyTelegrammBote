@@ -12,7 +12,7 @@ $result = $DB->TestChatId($data['chat'] ['id']) ? $result = true : $result = $DB
 
 if($result==true)
 {
-    $send_data = $MyBot->SwitchCaseStep_1($message);
+    $send_data = $MyBot->SwitchCaseStep_Name($message);
 }
 
 $send_data['chat_id'] = $data['chat'] ['id'];
