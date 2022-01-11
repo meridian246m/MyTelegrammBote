@@ -378,7 +378,6 @@
                 return $send_data;
 
             } 
-
             public function RegisterTextShow($Status,$Info)
             {
                 switch($Status)
@@ -406,8 +405,75 @@
                     break;
                 }      
             }
-    
+            public function NetworkingShow()
+            {
+                return ['text'=>'Тут можно найти людей'];
+            }
+            public function ConnetcWithManager()
+            {
+                return ['text'=>'Тут можно связаться с менеджером'];
+            }
+            public function MarketingPforum()
+            {
+                return ['text'=>'Тут можно будет наверное переход кудато'];
+            }
 
+            public function EditNameForm()
+            {
+                $send_data = [ 'text'=>'Введите Новое Имя' ];
+                return $send_data;
+            }
+            public function EditAboutSelfForm()
+            {
+                $send_data = [ 'text'=>'Введите новое описание о ваших достижениях' ];
+                return $send_data;
+            }
+            public function EditRequestAudForm()
+            {
+                $send_data = 
+                [
+                    'text'=> 'Кого бы вы хотели найти на конференции?',
+                    'reply_markup'=>
+                    [
+                        'resize_keyboard' => true, 
+                        'keyboard' =>   
+                        [
+                            [
+                                ['text' => 'Сотрудника'],
+                                ['text' => 'Инвестора'],
+                            ],
+                            [
+                                ['text' => 'Новые знакомства'],
+                                ['text' => 'Заказчика'],
+                            ],
+                            [
+                                ['text' => 'Партнера'],
+                                ['text' => 'Приключение'],
+                            ],
+                        ]
+                    ]
+                ];
+                return $send_data;
+            }
+            public function EditPhotoForm()
+            {
+                $send_data = 
+                [
+                    'text'=>'Пришлите Вашу фотографию на аватар профиля в боте',
+                    'reply_markup'=>
+                    [
+                        'resize_keyboard' => true, 
+                        'keyboard' =>   
+                        [
+                            [
+                                ['text' => ''],
+                            ]
+                        ]
+                    ]
+                ];
+                return $send_data;
+
+            }
 
 
 

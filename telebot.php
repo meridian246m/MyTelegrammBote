@@ -34,10 +34,28 @@ if($DB->TestChatId($data['chat'] ['id'])==false)    // Если записи Ч�
             case '<нет, мне не интересно!>': $send_data = $DB->DeleteChat($chat_id); break;
             default : $send_data = $NewBot->RegisterTextShow($Status,$message); break;
         }
-    } else
+    } 
+    $Status  = $NewBot->TestRegisterUserData($chat_id); //Узнаем какие поля не заполнены on - значит все заполнили
+    if($Status=='on')
     {
+        $send_data = ['text'=>$Status];
         //Если регистрационная информация полная, значит тут уже работаем.
-        $send_data = $NewBot->UserPanel();
+        switch($message)
+        {
+            case '<связаться с клиентским менеджером>': $send_data = $NewBot->ConnetcWithManager();  break;
+            case '<правила нетворкинга>':               $send_data = $NewBot->TimeLineShow();        break;
+            case '<профиль>':                           $send_data = $NewBot->FormEditProfile();     break;
+            case '<нетворкинг>':                        $send_data = $NewBot->NetworkingShow();      break;
+            case 'sochi farketing forum':               $send_data = $NewBot->MarketingPforum();     break;
+            ///////////////////////////////////////////////////////////////////////////////////////////////
+            case '<имя!>':                              $send_data = $NewBot->EditNameForm();        break;
+            case '<компетенция!>':                      $send_data = $NewBot->EditAboutSelfForm();   break;
+            case '<запрос к аудитории!>':               $send_data = $NewBot->EditRequestAudForm();  break;
+            case '<фотография!>':                       $send_data = $NewBot->EditPhotoForm();       break;
+            case '<не буду пока ничего менять!>':       $send_data = $NewBot->UserPanel();           break;
+            ///////////////////////////////////////////////////////////////////////////////////////////////    
+            default :                                   $send_data = $NewBot->UserPanel();           break;
+        }
     }
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
