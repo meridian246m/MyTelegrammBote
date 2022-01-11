@@ -43,7 +43,7 @@
         public function CreateUser($chat_id)
         {
             $conn   =   $this->DataBaseConnect();
-            $sql = "INSERT INTO data_user (chat_id,Name,City,Busines,AboutSelf,WhoSearch,Img) VALUES ('$chat_id','0','0','0','na','0','na')";
+            $sql = "INSERT INTO data_user (chat_id,Name,City,Busines,AboutSelf,WhoSearch,Img) VALUES ('$chat_id','0','0','0','0','0','0')";
             mysqli_query($conn, $sql);
             $result = mysqli_insert_id($conn);
             $this->DataBaseDisconect( $conn );
@@ -57,7 +57,6 @@
             $result = $this->GetUserOnChatID($chat_id);
             return $result;
         }
-    //    public function SetPhotoStore(){}
     }
 
 
@@ -109,7 +108,7 @@
                     ];
                 }        
                 return $send_data;
-            }        
+            }                      
             public function SwitchCaseStep_City($message) //ok!
             {
                 $send_data = ['text' => 'Здравствуйте, '.$message.'! Напишите из какого Вы города'];
@@ -117,7 +116,6 @@
             }        
             public function SwitchCaseStep_Busines($message) //ok!
             {
-                $this->UpdateUserData('City',$message);
                 $send_data = 
                 [
                     'text'=> $message.' Классный город! А кем Вы являетесь? Выберите один из вариантов',
@@ -138,25 +136,20 @@
                     ]
                 ];
                 return $send_data;
-            }        
-            
+            }                    
             public function SwitchCaseStep_AboutSelf($message) //ok! step 1 on 2
             {
-               // $this->UpdateUserData('Busines',$message);
-                $UserName = $message;
                 $send_data = 
                 [
-                    'text'=> $UserName.', а теперь напишите какими навыками и компетенциями вы обладаете! Укажите кратко ваши самые сильные стороны и достижения',
+                    'text'=> $message.', а теперь напишите какими навыками и компетенциями вы обладаете! Укажите кратко ваши самые сильные стороны и достижения',
                 ];
                 return $send_data;
-            }     
-               
-            public function SwitchCaseStep_WhoSearch($message)
+            }                    
+            public function SwitchCaseStep_WhoSearch($message) //ok!
             {
-                $UserName = $message;
                 $send_data = 
                 [
-                    'text'=> $UserName.', Здорово! А кого бы вы хотели найти на конференции?',
+                    'text'=> $message.', Здорово! А кого бы вы хотели найти на конференции?',
                     'reply_markup'=>
                     [
                         'resize_keyboard' => true, 
@@ -178,20 +171,15 @@
                     ]
                 ];
                 return $send_data;
-            }  
-            
-            /*      
+            }              
             public function SwitchCaseStep_Photo($message)
             {
-                $this->UpdateUserData('Busines',$message);
-                $UserName = 'Тест!!!';
                 $send_data = 
                 [
-                    'text'=> $UserName.', Круто! Пришлите Вашу фотографию на аватар профиля в боте',
+                    'text'=> $message.', Круто! Пришлите Вашу фотографию на аватар профиля в боте',
                 ];
                 return $send_data;
             }        
-            */
             public function RegFinal()
             {
                 $send_data = 
@@ -218,9 +206,34 @@
                 ];
                 return $send_data;
             }
+            public function TestReg($User,$message,$chat_id)
+            {
+                if($User['Name']=='0' || $User['Name']=='')
+                {$this->UpdateUserData('Name',$chat_id,$message);       return $this->SwitchCaseStep_City($message);}
+
+                elseif($User['City']=='0' || $User['City']=='')
+                {$this->UpdateUserData('City',$chat_id,$message);       return $this->SwitchCaseStep_Busines($message);}
+
+                elseif($User['Busines']=='0' || $User['Busines']=='')
+                {$this->UpdateUserData('Busines',$chat_id,$message);    return $this->SwitchCaseStep_AboutSelf($message);}
+
+                elseif($User['AboutSelf']=='0' || $User['AboutSelf']=='')
+                {$this->UpdateUserData('AboutSelf',$chat_id,$message);  return $this->SwitchCaseStep_WhoSearch($message);}
+
+                elseif($User['WhoSearch']=='0' || $User['WhoSearch']=='')
+                {$this->UpdateUserData('WhoSearch',$chat_id,$message);  return $this->SwitchCaseStep_Photo($message);}
+
+                elseif($User['Img']=='0' || $User['Img']=='')
+                {$this->UpdateUserData('Img',$chat_id,$message);        return $this->RegFinal();}
+
+                else {$this->RegFinal();}
+            }
 
     }
 
-
 ?>
+
+
+
+
 
