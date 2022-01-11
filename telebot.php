@@ -36,6 +36,14 @@ if($DB->TestChatId($data['chat'] ['id'])==false)    // Если записи Ч�
         }
     } 
     $Status  = $NewBot->TestRegisterUserData($chat_id); //Узнаем какие поля не заполнены on - значит все заполнили
+
+    $Status_ed = $DB->GetStatus_ed($chat_id);
+
+    if($Status_ed=='Name_ed')       {$DB->UpdateUserData('Name',     $chat_id,$message);}
+    if($Status_ed=='AboutSelf_ed')  {$DB->UpdateUserData('AboutSelf',$chat_id,$message);}
+    if($Status_ed=='WhoSearch_ed')  {$DB->UpdateUserData('WhoSearch',$chat_id,$message);}
+    if($Status_ed=='Img_ed')        {$DB->UpdateUserData('Img',      $chat_id,$message);}
+
     if($Status=='on')
     {
         $send_data = ['text'=>$Status];
@@ -48,10 +56,10 @@ if($DB->TestChatId($data['chat'] ['id'])==false)    // Если записи Ч�
             case '<нетворкинг>':                        $send_data = $NewBot->NetworkingShow();      break;
             case 'sochi farketing forum':               $send_data = $NewBot->MarketingPforum();     break;
             ///////////////////////////////////////////////////////////////////////////////////////////////
-            case '<имя!>':                              $send_data = $NewBot->EditNameForm();        break;
-            case '<компетенция!>':                      $send_data = $NewBot->EditAboutSelfForm();   break;
-            case '<запрос к аудитории!>':               $send_data = $NewBot->EditRequestAudForm();  break;
-            case '<фотография!>':                       $send_data = $NewBot->EditPhotoForm();       break;
+            case '<имя!>':                              $send_data = $NewBot->EditNameForm();       $DB->UpdateStatus_ed($chat_id,'Name_ed');       break;
+            case '<компетенция!>':                      $send_data = $NewBot->EditAboutSelfForm();  $DB->UpdateStatus_ed($chat_id,'AboutSelf_ed');  break;
+            case '<запрос к аудитории!>':               $send_data = $NewBot->EditRequestAudForm(); $DB->UpdateStatus_ed($chat_id,'WhoSearch_ed');  break;
+            case '<фотография!>':                       $send_data = $NewBot->EditPhotoForm();      $DB->UpdateStatus_ed($chat_id,'Img_ed');        break;
             case '<не буду пока ничего менять!>':       $send_data = $NewBot->UserPanel();           break;
             ///////////////////////////////////////////////////////////////////////////////////////////////    
             default :                                   $send_data = $NewBot->UserPanel();           break;

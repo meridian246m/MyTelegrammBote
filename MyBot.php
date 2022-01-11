@@ -147,6 +147,18 @@
            if($User['Img']=='0'         || $User['Img']=='')      {return 'ch_Img_reg';}
            return 'on';
         }
+        public function UpdateStatus_ed($chat_id,$status)
+        {
+            $conn   =   $this->DataBaseConnect();
+            $sql = "UPDATE data_user SET Status_ed='".$status."' WHERE chat_id=".$chat_id;
+            mysqli_query($conn, $sql);
+            $this->DataBaseDisconect( $conn );
+        }
+        public function GetStatus_ed($chat_id)
+        {
+            $User = $this->GetUserOnChatID($chat_id);
+            return $User['Status_ed'];
+        }
     }
 
 
@@ -472,7 +484,6 @@
                     ]
                 ];
                 return $send_data;
-
             }
 
 
