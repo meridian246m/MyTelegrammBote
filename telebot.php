@@ -39,10 +39,10 @@ if($DB->TestChatId($data['chat'] ['id'])==false)    // Если записи Ч�
 
     $Status_ed = $DB->GetStatus_ed($chat_id);
 
-    if($Status_ed=='Name_ed')       {$DB->UpdateUserData('Name',     $chat_id,$message);}
-    if($Status_ed=='AboutSelf_ed')  {$DB->UpdateUserData('AboutSelf',$chat_id,$message);}
-    if($Status_ed=='WhoSearch_ed')  {$DB->UpdateUserData('WhoSearch',$chat_id,$message);}
-    if($Status_ed=='Img_ed')        {$DB->UpdateUserData('Img',      $chat_id,$message);}
+    if($Status_ed=='Name_ed')       {$DB->UpdateUserData('Name',     $chat_id,$message); $DB->UpdateStatus_ed($chat_id,'0');}
+    if($Status_ed=='AboutSelf_ed')  {$DB->UpdateUserData('AboutSelf',$chat_id,$message); $DB->UpdateStatus_ed($chat_id,'0');}
+    if($Status_ed=='WhoSearch_ed')  {$DB->UpdateUserData('WhoSearch',$chat_id,$message); $DB->UpdateStatus_ed($chat_id,'0');}
+    if($Status_ed=='Img_ed')        {$DB->UpdateUserData('Img',      $chat_id,$message); $DB->UpdateStatus_ed($chat_id,'0');}
 
     if($Status=='on')
     {
@@ -60,9 +60,9 @@ if($DB->TestChatId($data['chat'] ['id'])==false)    // Если записи Ч�
             case '<компетенция!>':                      $send_data = $NewBot->EditAboutSelfForm();  $DB->UpdateStatus_ed($chat_id,'AboutSelf_ed');  break;
             case '<запрос к аудитории!>':               $send_data = $NewBot->EditRequestAudForm(); $DB->UpdateStatus_ed($chat_id,'WhoSearch_ed');  break;
             case '<фотография!>':                       $send_data = $NewBot->EditPhotoForm();      $DB->UpdateStatus_ed($chat_id,'Img_ed');        break;
-            case '<не буду пока ничего менять!>':       $send_data = $NewBot->UserPanel();           break;
+            case '<не буду пока ничего менять!>':       $send_data = $NewBot->UserPanel($chat_id);           break;
             ///////////////////////////////////////////////////////////////////////////////////////////////    
-            default :                                   $send_data = $NewBot->UserPanel();           break;
+            default :                                   $send_data = $NewBot->UserPanel($chat_id);           break;
         }
     }
 /////////////////////////////////////////////////////////////////////////////////////////////
