@@ -108,3 +108,39 @@ $send_data['chat_id'] = $data['chat'] ['id'];
 $Bot = new MyBot;
 $res = $Bot->sendMessage($method, $send_data, $Bot->botToken);
 ?>
+
+
+
+case 'ch_Name_reg':
+                    $this->UpdateUserData('Name',$chat_id,$message);
+                    $this->UpdateUserData('Status',$chat_id,'ch_City_reg');
+                    return 'ch_City_reg';
+                    break;
+                case 'ch_City_reg':
+                    $this->UpdateUserData('City',$chat_id,$message);
+                    $this->UpdateUserData('Status',$chat_id,'ch_Busines_reg');
+                    return 'ch_Busines_reg';
+                    break;    
+                case 'ch_Busines_reg':
+                        $this->UpdateUserData('Busines',$chat_id,$message);
+                        $this->UpdateUserData('Status',$chat_id,'ch_AboutSelf_reg');
+                    return 'ch_AboutSelf_reg';
+                    break;        
+                case 'ch_AboutSelf_reg':
+                    $this->UpdateUserData('AboutSelf',$chat_id,$message);
+                    $this->UpdateUserData('Status',$chat_id,'ch_WhoSearch_reg');
+                    return 'ch_WhoSearch_reg';
+                    break;
+                case 'ch_WhoSearch_reg':
+                    $this->UpdateUserData('WhoSearch',$chat_id,$message);
+                    $this->UpdateUserData('Status',$chat_id,'ch_Img_reg');
+                    return 'ch_Img_reg';
+                    break;
+                case 'ch_Img_reg':
+                    $this->UpdateUserData('Img',$chat_id,$message);
+                    $this->UpdateUserData('Status',$chat_id,'on');
+                    return 'UserSingUp';
+                    break;
+                case 'on':
+                    return 'UserSingUp';
+                break;
