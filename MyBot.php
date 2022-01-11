@@ -153,7 +153,6 @@
                
             public function SwitchCaseStep_WhoSearch($message)
             {
-                $this->UpdateUserData('Busines',$message);
                 $UserName = $message;
                 $send_data = 
                 [

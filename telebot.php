@@ -8,36 +8,42 @@ $message = mb_strtolower(($data['text'] ? $data['text'] : $data['data']),'utf-8'
 $DB     = new DataBase;
 $NewBot = new MyBot;
 $method = 'sendMessage';
+$chat_id = $data['chat'] ['id'];
 
-$result = $DB->TestChatId($data['chat'] ['id']) ? $result = true : $result = $DB->CreateUser($data['chat'] ['id']);
-
+$result = $DB->TestChatId($chat_id) ? $result = true : $result = $DB->CreateUser($chat_id);
 if($result==true)
 {
-    $User = $DB->GetUserOnChatID($data['chat'] ['id']);
+    $User = $DB->GetUserOnChatID($chat_id);
     if($User['Name']=='0' || $User['Name']==''){$info='Name';}    
     elseif($User['City']=='0' || $User['City']==''){$info='City';}    
     elseif($User['Busines']=='0' || $User['Busines']==''){$info='Busines';}    
     elseif($User['AboutSelf']=='0' || $User['AboutSelf']==''){$info='AboutSelf';}   
-    elseif($User['WhoSearch']=='0' || $User['WhoSearch']==''){$info='WhoSearch';}   
+    elseif($User['WhoSearch']=='0' || $User['WhoSearch']==''){$info='WhoSearch';} 
+    else {$info='AllDataOk';}  
     switch ($info)
     {
         case 'Name':
             $send_data = $NewBot->SwitchCaseStep_Name($message);      //ok!  
         break;
         case 'City':
-        //    $send_data = $NewBot->SwitchCaseStep_City($message);      //ok!  
+            $DB->UpdateUserData('Name',$chat_id,$message);
+            $send_data = $NewBot->SwitchCaseStep_City($message);      //ok!  
         break;
         case 'Busines':
-        //    $send_data = $NewBot->SwitchCaseStep_Busines($message);   //ok!
+            $DB->UpdateUserData('City',$chat_id,$message);
+            $send_data = $NewBot->SwitchCaseStep_Busines($message);   //ok!
         break;
         case 'AboutSelf':
-        //    $send_data = $NewBot->SwitchCaseStep_AboutSelf($message); //ok! step 1 on 2
+            $DB->UpdateUserData('Busines',$chat_id,$message);
+            $send_data = $NewBot->SwitchCaseStep_AboutSelf($message); //ok! step 1 on 2
         break;
         case 'WhoSearch':
-        //    $send_data = $NewBot->SwitchCaseStep_WhoSearch($message);   //ok! step 1 on 2
+            $DB->UpdateUserData('AboutSelf',$chat_id,$message);
+            $send_data = $NewBot->SwitchCaseStep_WhoSearch($message);   //ok! step 1 on 2
         break;    
         case 'AllDataOk':
-        //    $send_data = $NewBot->RegFinal($message);                 //ok!
+            
+            $send_data = $NewBot->RegFinal($message);                 //ok!
         break;    
         }
 }
