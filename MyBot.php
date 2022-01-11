@@ -35,24 +35,27 @@
         public function GetUserOnChatID($chat_id)
         {
             $conn   =   $this->DataBaseConnect();
-            $sql    =   "SELECT 1 FROM data_user WHERE chat_id=".$chat_id;
+            $sql    =   "SELECT * FROM data_user WHERE chat_id=".$chat_id." LIMIT 1";
             $result =   mysqli_fetch_assoc( $result = mysqli_query($conn, $sql) );
             $this->DataBaseDisconect( $conn );
             return $result;
         }
-
         public function CreateUser($chat_id)
         {
             $conn   =   $this->DataBaseConnect();
-            $sql = "INSERT INTO data_user (chat_id,Name,City,Busines,AboutSelf,WhoSearch,Img) VALUES ('$chat_id','na','na',0,'na',0,'na')";
+            $sql = "INSERT INTO data_user (chat_id,Name,City,Busines,AboutSelf,WhoSearch,Img) VALUES ('$chat_id','0','0','0','na','0','na')";
             mysqli_query($conn, $sql);
             $result = mysqli_insert_id($conn);
             $this->DataBaseDisconect( $conn );
             return $result;
         }
-        public function UpdateUserData($item,$message)
+        public function UpdateUserData($item,$chat_id,$message)
         {
-            return 'Тест!!!';
+            $conn   =   $this->DataBaseConnect();
+            $sql = "UPDATE data_user SET ".$item."='".$message."' WHERE chat_id=".$chat_id;
+            mysqli_query($conn, $sql);
+            $result = $this->GetUserOnChatID($chat_id);
+            return $result;
         }
     //    public function SetPhotoStore(){}
     }
@@ -78,7 +81,7 @@
                 curl_close($curl);
                 return (json_decode($result, 1) ? json_decode($result, 1) : $result);
             }
-            public function SwitchCaseStep_Name($message)
+            public function SwitchCaseStep_Name($message) //ok!
             {
                     switch ($message) 
                 {
@@ -107,12 +110,12 @@
                 }        
                 return $send_data;
             }        
-            public function SwitchCaseStep_City($message)
+            public function SwitchCaseStep_City($message) //ok!
             {
-                $send_data = ['text' => 'Здравствуйте, '.$$message.'! Напишите из какого Вы города'];
+                $send_data = ['text' => 'Здравствуйте, '.$message.'! Напишите из какого Вы города'];
                 return $send_data;
             }        
-            public function SwitchCaseStep_Busines($message)
+            public function SwitchCaseStep_Busines($message) //ok!
             {
                 $this->UpdateUserData('City',$message);
                 $send_data = 
@@ -136,20 +139,22 @@
                 ];
                 return $send_data;
             }        
-            public function SwitchCaseStep_AboutSelf($message)
+            
+            public function SwitchCaseStep_AboutSelf($message) //ok! step 1 on 2
             {
-                $this->UpdateUserData('Busines',$message);
-                $UserName = 'Тест!!!';
+               // $this->UpdateUserData('Busines',$message);
+                $UserName = $message;
                 $send_data = 
                 [
                     'text'=> $UserName.', а теперь напишите какими навыками и компетенциями вы обладаете! Укажите кратко ваши самые сильные стороны и достижения',
                 ];
                 return $send_data;
-            }        
+            }     
+               
             public function SwitchCaseStep_WhoSearch($message)
             {
                 $this->UpdateUserData('Busines',$message);
-                $UserName = 'Тест!!!';
+                $UserName = $message;
                 $send_data = 
                 [
                     'text'=> $UserName.', Здорово! А кого бы вы хотели найти на конференции?',
@@ -174,7 +179,9 @@
                     ]
                 ];
                 return $send_data;
-            }        
+            }  
+            
+            /*      
             public function SwitchCaseStep_Photo($message)
             {
                 $this->UpdateUserData('Busines',$message);
@@ -185,6 +192,7 @@
                 ];
                 return $send_data;
             }        
+            */
             public function RegFinal()
             {
                 $send_data = 
