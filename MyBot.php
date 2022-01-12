@@ -10,6 +10,7 @@
         public function DataBaseConnect()
         {
             $conn = mysqli_connect($this->servername, $this->username, $this->password, $this->database);
+            mysqli_set_charset($conn, "utf8");
             if (!$conn) {return false;} else {return $conn;}
         }
         public function DataBaseDisconect($conn)
@@ -63,12 +64,23 @@
             $conn   =   $this->DataBaseConnect();
             $sql = "DELETE FROM data_user WHERE chat_id=".$chat_id;
             mysqli_query($conn, $sql);
-            $result = ['text'=>'Приходите еще!'];
+            $result =   [
+                            'text'=>'Приходите еще!',
+                            'reply_markup'=>
+                            [
+                                'resize_keyboard' => true, 
+                                'keyboard' =>   
+                                [
+                                    [
+                                        ['text' => '/start']
+                                    ]      
+                                ]
+                            ]     
+                        ];
             return $result;
         }
         public function RegisterInfoStore($Status,$chat_id,$data)
         {
-            $User = $this->GetUserOnChatID($chat_id);
             switch($Status)
             {
                 case 'ch_Name_reg':
@@ -159,6 +171,25 @@
             $User = $this->GetUserOnChatID($chat_id);
             return $User['Status_ed'];
         }
+        public function GetNextUser()
+        {
+            $conn   =   $this->DataBaseConnect();
+            $sql    =   "SELECT * FROM data_user ORDER BY RAND() LIMIT 1";
+            $User =   mysqli_fetch_assoc( $User = mysqli_query($conn, $sql) );
+            return $User;
+        }
+        public function GetNextUserFieldValue()
+        {
+            $conn   =   $this->DataBaseConnect();
+            $sql    =   "SELECT * FROM data_user WHERE City = '125'";
+            $Users = mysqli_query($conn, $sql);
+            foreach($Users as $index){
+                   $User =  $index;
+            }
+            return $User;
+        }
+
+
     }
 
 
@@ -212,7 +243,11 @@
             }                      
             public function Request_City($UserName) //ok!
             {
-                $send_data = ['text' => 'Здравствуйте, '.$UserName.'! Напишите из какого Вы города'];
+                $send_data = 
+                [
+                'text' => 'Здравствуйте, '.$UserName.'! Напишите из какого Вы города',
+                'reply_markup'=>['remove_keyboard'=>true]
+                ];
                 return $send_data;
             }        
             public function Request_Busines() //ok!
@@ -226,12 +261,12 @@
                         'keyboard' =>   
                         [
                             [
-                                ['text' => '<Работаю маркетологом>'],
-                                ['text' => '<Владею Маркетинговым агенством>'],
+                                ['text' => 'Работаю маркетологом'],
+                                ['text' => 'Владею Маркетинговым агенством'],
                             ],
                             [
-                                ['text' => '<Занимаюсь другим бизнесом>'],
-                                ['text' => '<Другая сфера деятельности>'],
+                                ['text' => 'Занимаюсь другим бизнесом'],
+                                ['text' => 'Другая сфера деятельности'],
                             ]
                         ]
                     ]
@@ -242,7 +277,8 @@
             {
                 $send_data = 
                 [
-                    'text'=> 'А теперь напишите какими навыками и компетенциями вы обладаете! Укажите кратко ваши самые сильные стороны и достижения'
+                    'text'=> 'А теперь напишите какими навыками и компетенциями вы обладаете! Укажите кратко ваши самые сильные стороны и достижения',
+                    'reply_markup'=>['remove_keyboard'=>true]
                 ];
                 return $send_data;
             }                    
@@ -318,47 +354,6 @@
                 ];
                 return $send_data;
             }
-            public function StartRegister()
-            {
-                $send_data = 
-                [
-                    'text'=> 'Зарегистрируйтесь!',
-                    'reply_markup'=>
-                    [
-                        'resize_keyboard' => true, 
-                        'keyboard' =>   
-                        [
-                            [
-                                ['text' => '<Регистрация!>'],
-                            ]
-                        ]
-                    ]
-                ];
-                return $send_data;
-
-            }
-            public function TestReg($User,$message,$chat_id)
-            {
-                        if($User['Name']=='0' || $User['Name']=='')
-                        {$this->UpdateUserData('Name',$chat_id,$message);       return $this->SwitchCaseStep_City($message);}
-
-                        elseif($User['City']=='0' || $User['City']=='')
-                        {$this->UpdateUserData('City',$chat_id,$message);       return $this->SwitchCaseStep_Busines($message);}
-
-                        elseif($User['Busines']=='0' || $User['Busines']=='')
-                        {$this->UpdateUserData('Busines',$chat_id,$message);    return $this->SwitchCaseStep_AboutSelf($message);}
-
-                        elseif($User['AboutSelf']=='0' || $User['AboutSelf']=='')
-                        {$this->UpdateUserData('AboutSelf',$chat_id,$message);  return $this->SwitchCaseStep_WhoSearch($message);}
-
-                        elseif($User['WhoSearch']=='0' || $User['WhoSearch']=='')
-                        {$this->UpdateUserData('WhoSearch',$chat_id,$message);  return $this->SwitchCaseStep_Photo($message);}
-
-                        elseif($User['Img']=='0' || $User['Img']=='')
-                        {$this->UpdateUserData('Img',$chat_id,$message);        return $this->RegFinal();}
-
-                        else {$this->RegFinal();}
-            }
             public function TimeLineShow()
             {
                 $result = ['text'=>"Регистрация 9:00-10:00\r\nОткрытие 10:00-10:30\r\n\r\nГрибов 10:30-11:15\r\nУшенин 11:15-11:45\r\nБермуда 11:45-12:45\r\n\r\nКофе-брейк 12:45-13:15\r\n\r\nСташкевич 13:15-14:00\r\nВоловик 14:00-14:45\r\nКорс 14:45-15:30\r\nВоронин 15:30-16:30\r\n\r\nОбеденный перерыв 16:30-17:30\r\n\r\nАлексеев 17:30-18:15\r\nЕфремов 18:15-19:00\r\nЗакрытие 19:00-19:30\r\n"];
@@ -418,9 +413,57 @@
                     break;
                 }      
             }
+
+            public function NetworkingShowNext()
+            {
+                $User = $this->GetNextUser();
+                $send_data = 
+                [
+                    'text'=> $User['Img']."\r\n".$User['Name']."\r\n".$User['City']."\r\n".$User['Busines']."\r\n".$User['AboutSelf']."\r\n".$User['WhoSearch'],
+                    'reply_markup'=>
+                    [
+                        'resize_keyboard' => true, 
+                        'keyboard' =>   
+                        [
+                            [
+                                ['text' => '<Связаться>'],
+                                ['text' => '<Следующий>']
+                            ],
+                            [
+                                ['text' => '<Выйти>'],
+                            ]
+
+                        ]
+                    ],
+                    'parse_mode' => 'markdown'
+                ];
+                return $send_data;
+            }
+
             public function NetworkingShow()
             {
-                return ['text'=>'Тут можно найти людей'];
+                $User = $this->GetNextUser();
+                $send_data = 
+                [
+                    'text'=> $User['Img'].'<b>'.$User['Name'].'</b>'.$User['City'].$User['Busines'].$User['AboutSelf'].$User['WhoSearch'],
+                    'reply_markup'=>
+                    [
+                        'resize_keyboard' => true, 
+                        'keyboard' =>   
+                        [
+                            [
+                                ['text' => '<Связаться>'],
+                                ['text' => '<Следующий>']
+                            ],
+                            [
+                                ['text' => '<Выйти>'],
+                            ]
+
+                        ]
+                    ],
+                    'parse_mode' => 'markdown'
+                ];
+                return $send_data;
             }
             public function ConnetcWithManager()
             {
@@ -433,12 +476,36 @@
 
             public function EditNameForm()
             {
-                $send_data = [ 'text'=>'Введите Новое Имя' ];
+                $send_data = 
+                [ 
+                    'text'=>'Введите Новое Имя',
+                    'reply_markup'=>
+                    [
+                        'resize_keyboard' => true, 
+                        'keyboard' =>   
+                        [
+                            [
+                                ['text' => '<Не буду пока ничего менять!>'],
+                            ]
+                        ]
+                    ]
+                ];
                 return $send_data;
             }
             public function EditAboutSelfForm()
             {
-                $send_data = [ 'text'=>'Введите новое описание о ваших достижениях' ];
+                $send_data = [ 'text'=>'Введите новое описание о ваших достижениях',
+                                    'reply_markup'=>
+                                    [
+                                        'resize_keyboard' => true, 
+                                        'keyboard' =>   
+                                        [
+                                            [
+                                                ['text' => '<Не буду пока ничего менять!>'],
+                                            ]
+                                        ]
+                                    ]
+                            ];
                 return $send_data;
             }
             public function EditRequestAudForm()
@@ -463,6 +530,9 @@
                                 ['text' => 'Партнера'],
                                 ['text' => 'Приключение'],
                             ],
+                            [
+                                ['text' => '<Не буду пока ничего менять!>'],
+                            ]
                         ]
                     ]
                 ];
@@ -471,19 +541,7 @@
             public function EditPhotoForm()
             {
                 $send_data = 
-                [
-                    'text'=>'Пришлите Вашу фотографию на аватар профиля в боте',
-                    'reply_markup'=>
-                    [
-                        'resize_keyboard' => true, 
-                        'keyboard' =>   
-                        [
-                            [
-                                ['text' => ''],
-                            ]
-                        ]
-                    ]
-                ];
+                ['text'=>'Пришлите Вашу фотографию на аватар профиля в боте','reply_markup'=>['remove_keyboard' => true]];
                 return $send_data;
             }
 
