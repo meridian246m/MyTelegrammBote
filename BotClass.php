@@ -5,7 +5,7 @@ class DataBase
     private $database =     "aa389941_botbase";
     private $username =     "aa389941_meridian246";
     private $password =     "96stYP8BMf7h";
-    private $ImgUrl =       "https://telebot.tesovii.space/img/";
+    protected $ImgUrl =     "https://telebot.tesovii.space/img/";
         private function DBConnect()
             {
             $conn = mysqli_connect($this->servername, $this->username, $this->password, $this->database);
@@ -13,24 +13,26 @@ class DataBase
             if (!$conn) {return false;} else {return $conn;}}
         private function DBDisconnect($link)
             {
-                mysqli_close($link);}
+                mysqli_close($link);
+            }
         protected function CreateUser($data)
             {
-            $link   =   $this->DBConnect();
-            $chat_id =      $data['message']['chat']['id'];
-            if($chat_id==0){return false;}
-            $first_name =   $data['message']['chat']['first_name'];
-            $last_name =    $data['message']['chat']['last_name'];
-            $username =     $data['message']['chat']['username'];
-            $Status_ed  = 'close';
-            ////////////////////////////////////////////
-            $sql = "INSERT INTO users (chat_id,first_name,last_name,username,Status_ed) 
-            VALUES 
-            ('$chat_id','$first_name','$last_name','$username','$Status_ed')";
-            ////////////////////////////////////////////
-            $result = mysqli_query($link, $sql);
-            $this->DBDisconnect( $link );
-            return $result;}
+                $link   =   $this->DBConnect();
+                $chat_id =      $data['message']['chat']['id'];
+                if($chat_id==0){return false;}
+                $first_name =   $data['message']['chat']['first_name'];
+                $last_name =    $data['message']['chat']['last_name'];
+                $username =     $data['message']['chat']['username'];
+                $Status_ed  = 'close';
+                ////////////////////////////////////////////
+                $sql = "INSERT INTO users (chat_id,first_name,last_name,username,Status_ed) 
+                VALUES 
+                ('$chat_id','$first_name','$last_name','$username','$Status_ed')";
+                ////////////////////////////////////////////
+                $result = mysqli_query($link, $sql);
+                $this->DBDisconnect( $link );
+                return $result;
+            }
         protected function DeleteUser($data)
             {
             $chat_id =  $data['message']['chat']['id'];
@@ -62,10 +64,11 @@ class DataBase
             }
         protected function SaveUserProfileFoto($chat_id,$filename)
             {
-                $url    =   $this->ImgUrl.$filename;
-                $link   =   $this->DataBaseConnect();
-                $sql = "UPDATE data_user SET ImgProfile='".$url."' WHERE chat_id=".$chat_id;
-                $$result = mysqli_query($link, $sql);
+                $url    =   $filename;
+                $link   =   $this->DBConnect();
+                $sql = "UPDATE users SET ImgProfile='".$url."' WHERE chat_id=".$chat_id;
+                $result = mysqli_query($link, $sql);
+                $this->DBDisconnect($link);
                 return $result;
             }
         protected function GetOneUser($field,$variable){
@@ -142,20 +145,26 @@ class TeleBot extends DataBase
                 curl_close($curl);
                 return (json_decode($result, 1) ? json_decode($result, 1) : $result);
             }   
+            /** Отправляем запрос в Телеграмм
+             * @param $data
+             * @param string $type
+             * @return mixed
+             */
         private function requestToTelegram($data, $type)
-            {
-            $result = null;
-            if (is_array($data)) {
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, $this->apiUrl . $this->botToken . '/' . $type);
-                curl_setopt($ch, CURLOPT_POST, count($data));
-                curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
-                $result = curl_exec($ch);
-                curl_close($ch);
-            }
-            return $result;
-            }
+                {
+                    $result = null;
+            
+                    if (is_array($data)) {
+                        $ch = curl_init();
+                        curl_setopt($ch, CURLOPT_URL, $this->apiUrl . $this->botToken . '/' . $type);
+                        curl_setopt($ch, CURLOPT_POST, count($data));
+                        curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
+                        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+                        $result = curl_exec($ch);
+                        curl_close($ch);
+                    }
+                    return $result;
+                }
         public  function TestRegisterUserData($chat_id)
             {
                 $User = $this->GetOneUser('chat_id',$chat_id);
@@ -281,7 +290,7 @@ class TeleBot extends DataBase
             {
             $send_data = 
             [
-                'text'=>"*<Круто!>* Пришлите Вашу фотографию на аватар профиля в боте>",
+                'text'=>"*<Круто!>* Пришлите Вашу фотографию на аватар профиля в боте",
                 'reply_markup'=>
                 [
                     'resize_keyboard' => true, 
@@ -318,14 +327,14 @@ class TeleBot extends DataBase
             $User= $this->GetOneUser('chat_id',$chat_id);
             $send_data = 
             [
-                'text'=> "<**".$User['Name']."!** Добро пожаловать на 💙 международную нетворкинг платформу OPENATOR! Здесь Вы найдете тех, кто поможет Вам перейти на новый уровень!>",
+                'text'=> "*<".$User['Name']."!>* Добро пожаловать на 💙 международную нетворкинг платформу *OPENATOR!* Здесь Вы найдете тех, кто поможет Вам перейти на новый уровень!",
                 'reply_markup'=>
                 [
                     'resize_keyboard' => true, 
                     'keyboard' =>   
                     [
                         [
-                            ['text' => '<Sochi Marketing Forum>'],
+                            ['text' => '<OPENATOR Marketing Forum>'],
                         ],
                         [
                             ['text' => '<Связаться с клиентским менеджером>'],
@@ -336,7 +345,8 @@ class TeleBot extends DataBase
                             ['text' => '<Нетворкинг>'],
                         ],
                     ]
-                ]
+                    ],
+                'parse_mode' => 'markdown'
             ];
             return $send_data;}
         
@@ -365,6 +375,10 @@ class TeleBot extends DataBase
                 {   
                     if($message[0]<>'/' AND $message[0]<>'<' AND $message[0]<>'{')
                     {
+                        if (array_key_exists('photo', $data['message'])) {
+                            $this->SaveUserPhoto($data); 
+                        } 
+
                         $Status_reg = $this->TestRegisterUserData($chat_id);
                         if($Status_reg <>'close')
                         {
@@ -372,7 +386,7 @@ class TeleBot extends DataBase
                         }
                     }
                     //Смотрим какой у него статус и какие поля не заполнены
-                    $Status_reg = $this->TestRegisterUserData($chat_id);                
+                    $Status_reg = $this->TestRegisterUserData($chat_id);        
                     //Отправляем Пользователя на заполнение недостающих полей
                     $send_data = $this->ShowRegisterUpdateQuest($Status_reg,$chat_id); //Вопросы для регистрации
                     switch($message)
@@ -409,7 +423,7 @@ class TeleBot extends DataBase
                 $send_data = 
                 [
                     'text'=>
-                    "".$User['ImgProfile']."\n\r *Имя:* ".$User['Name']."\n\r *Город:* ".$User['City']."\n\r *Занятие:* ".$User['Busines']."\n\r *Компетенция:* ".$User['AboutSelf']."\n\r *Ищу:* ".$User['WhoSearch'].
+                    "".$this->ImgUrl.$User['ImgProfile']."\n\r *Имя:* ".$User['Name']."\n\r *Город:* ".$User['City']."\n\r *Занятие:* ".$User['Busines']."\n\r *Компетенция:* ".$User['AboutSelf']."\n\r *Ищу:* ".$User['WhoSearch'].
                     "\n\r \n\r *Здесь вы можете поменять данные о себе. Что вы хотите изменить?*",
                     'reply_markup'=>
                     [
@@ -445,7 +459,7 @@ class TeleBot extends DataBase
                 $send_data = 
                 [
                     'text'=> 
-                    $User['Test']."\n\r".
+                    $this->ImgUrl.$User['ImgProfile']."\n\r".
                     "*".$User['Name']."*\n\r".
                     "Город: ".$User['City']."\n\r".
                     "Занимаюсь: ".$User['Busines']."\n\r".
@@ -543,30 +557,31 @@ class TeleBot extends DataBase
             }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         private function SaveUserPhoto($data) 
-        {
-            $Photo = $data['message']['photo'];
-            $chat_id = $data['message']['chat']['id'];
-            $file_id = $Photo[count($Photo) - 2]['file_id'];
-            $array = json_decode($this->requestToTelegram(['file_id' => $file_id], "getFile"), TRUE);
-            $file_path = $array['result']['file_path'];
-            $User = $this->GetOneUser('chat_id',$chat_id);   $OldFilename = $User['ImgProfile'];
-            if (file_exists($OldFilename)) {unlink($OldFilename);}
-            $file_from_tgrm = "https://api.telegram.org/file/bot".$this->botToken."/".$file_path;
-            $ext =  end(explode(".", $file_path));
-            $name_our_new_file = time().".".$ext;
-            $this->SaveUserProfileFoto($chat_id,$name_our_new_file);
-            $re = Array();
-            $re['copy'] = copy($file_from_tgrm, "img/".$name_our_new_file);
-            $re['name'] = $name_our_new_file;
-            $re['boolean'] = true;
-            return $re;
-        }
+            {
+                $Photo = $data['message']['photo'];
+                $chat_id = $data['message']['chat']['id'];
+                $file_id = $Photo[count($Photo) - 2]['file_id'];
+                $array = json_decode($this->requestToTelegram(['file_id' => $file_id], "getFile"), TRUE);
+                $file_path = $array['result']['file_path'];
+                $User = $this->GetOneUser('chat_id',$chat_id);   $OldFilename = $User['ImgProfile'];
+                if (file_exists($OldFilename)) {unlink($OldFilename);}
+                $file_from_tgrm = "https://api.telegram.org/file/bot".$this->botToken."/".$file_path;
+                $ext =  end(explode(".", $file_path));
+                $name_our_new_file = time().".".$ext;
+                $this->SaveUserProfileFoto($chat_id,$name_our_new_file);
+                $re = Array();
+                $re['copy'] = copy($file_from_tgrm, "img/".$name_our_new_file);
+                $re['name'] = $name_our_new_file;
+                $re['boolean'] = true;
+                return $re;
+            }
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public function WorkIngBot($data)
+        public function WorkIngBot($data)
             {
                 $message = mb_convert_encoding($data['message']['text'], "UTF-8");
                 $chat_id = $data['message']['chat']['id'];
-                $this->sendMessage($chat_id,'WorkingBot');
                 ///////////////////////////////////////////////////////////////////////
                 $Status_ed = $this->GetStatus_ed($chat_id);
 
@@ -574,8 +589,13 @@ class TeleBot extends DataBase
                 {
                     if($Status_ed=='Name')       {$this->UpdateUser('Name',     $data); $this->UpdateStatus_ed($chat_id,'close');}
                     if($Status_ed=='AboutSelf')  {$this->UpdateUser('AboutSelf',$data); $this->UpdateStatus_ed($chat_id,'close');}
-                    if($Status_ed=='WhoSearch')  {$this->UpdateUser('WhoSearch',$data); $this->UpdateStatus_ed($chat_id,'close');}
-                    if($Status_ed=='ImgProfile') {$this->SaveUserPhoto($data);          $this->UpdateStatus_ed($chat_id,'close');}
+                    if($Status_ed=='WhoSearch')  {$this->UpdateUser('WhoSearch',$data); $this->UpdateStatus_ed($chat_id,'close');}                    
+                    if($Status_ed=='ImgProfile') 
+                    {
+                        if (array_key_exists('photo', $data['message'])) {
+                                                  $this->SaveUserPhoto($data);          $this->UpdateStatus_ed($chat_id,'close');
+                        } else {$this->sendMessage($chat_id,'Это не фотография!');}
+                    }
                 }                                
                 ///////////////////////////////////////////////////////////////////////
                 switch($message)
@@ -587,7 +607,7 @@ class TeleBot extends DataBase
                         case '<Имя!>':                          $send_data = $this->EditNameForm();       $this->UpdateStatus_ed($chat_id,'Name');       break;
                         case '<Компетенция!>':                  $send_data = $this->EditAboutSelfForm();  $this->UpdateStatus_ed($chat_id,'AboutSelf');  break;
                         case '<Запрос к аудитории!>':           $send_data = $this->EditRequestAudForm(); $this->UpdateStatus_ed($chat_id,'WhoSearch');  break;
-                        case '<Фотография!>':                   $send_data = $this->EditPhotoForm();      $this->UpdateStatus_ed($chat_id,'ImgProfile');    break;
+                        case '<Фотография!>':                   $send_data = $this->EditPhotoForm();      $this->UpdateStatus_ed($chat_id,'ImgProfile'); break;
                         case '<Не буду пока ничего менять!>':   $send_data = $this->UserPanel($chat_id);            break;
                         ///////////////////////////////////////////////////////////////////////////////////////////////    
                     case '<Нетворкинг>':                        $send_data = $this->NetworkingShow();               break;
@@ -595,7 +615,7 @@ class TeleBot extends DataBase
                         case '<Следующий>':                     $send_data = $this->NetworkingShow();               break;
                         case '<Выйти>':                         $send_data = $this->UserPanel($chat_id);            break;
                         ///////////////////////////////////////////////////////////////////////////////////////////////    
-                    case '<Sochi farketing forum>':             $send_data = $this->MarketingPforum();              break;
+                    case '<Sochi Marketing forum>':             $send_data = $this->MarketingPforum();              break;
                     default :                                   $send_data = $this->UserPanel($chat_id);            break;        
                 }
                 $send_data['chat_id'] = $chat_id; $this->sendMessageEnd($send_data); ///SEND Message 
