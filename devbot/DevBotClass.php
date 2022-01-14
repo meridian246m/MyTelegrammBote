@@ -247,7 +247,7 @@ class TeleBot extends DataBase
             {
             $send_data = 
             [
-                'text'=> "*<Классный город!>* А кем Вы являетесь? Выберите один из вариантов.",
+                'text'=> "*<Классный город!>* А кем Вы являетесь? Напишите свою профессию. Например - Работаю маркетологом",
                 'reply_markup'=>
                 [
                     'resize_keyboard' => true, 
@@ -263,6 +263,7 @@ class TeleBot extends DataBase
                         ]
                     ]
                 ],
+                'reply_markup'=>['remove_keyboard'=>true],
                 'parse_mode' => 'markdown'
             ];
             return $send_data;}                    

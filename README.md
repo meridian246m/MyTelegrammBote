@@ -185,3 +185,15 @@ protected function InlineKeyBoard()
                     //md246Devbot
 //5026319207:AAE77UW_jQZQLeP2GywHKegwkZgvAj1_UgU
 //t.me/md246Devbot
+
+
+    private $servername =   "aa389941.mysql.tools";
+    private $database =     "aa389941_botbase";
+    private $username =     "aa389941_meridian246";
+    private $password =     "96stYP8BMf7h";
+    protected $ImgUrl =     "https://telebot.tesovii.space/img/";
+
+
+    private             $botToken = '1238564789:AAF1kydnaZ_ZWXlBrCXVyKC5RVeOLynCMvg';
+    private             $apiUrl =   "https://api.telegram.org/bot";
+    private             $method=    'sendMessage';
