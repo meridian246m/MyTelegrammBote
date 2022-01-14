@@ -119,6 +119,21 @@ class DataBase
                 $User =   mysqli_fetch_assoc( $User = mysqli_query($link, $sql) );
                 return $User;
             }
+        protected function SendAdmin($data)
+            {
+                $link   =       $this->DBConnect();
+                $chat_id =      $data['message']['chat']['id'];
+                if($chat_id==0){return false;}
+                $username =     $data['message']['chat']['username'];
+                $text =         $data['message']['text'];
+                ////////////////////////////////////////////
+                $sql = "INSERT INTO questions (from_chat_id,username,text) 
+                VALUES ($chat_id,'$username','$text')";
+                ////////////////////////////////////////////
+                $result = mysqli_query($link, $sql);
+                $this->DBDisconnect( $link );
+                return $sql;
+            }
 }
 
 class TeleBot extends DataBase
@@ -411,7 +426,7 @@ class TeleBot extends DataBase
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////        
         public function ConnetcWithManager()
             {
-                return ['text'=>'Тут можно связаться с менеджером'];
+                return ['text'=>'Напишите нам прямо сюда в этот чат, и мы с вами свяжемся!'];
             }
         public function MarketingPforum()
             {
@@ -590,6 +605,7 @@ class TeleBot extends DataBase
                     if($Status_ed=='Name')       {$this->UpdateUser('Name',     $data); $this->UpdateStatus_ed($chat_id,'close');}
                     if($Status_ed=='AboutSelf')  {$this->UpdateUser('AboutSelf',$data); $this->UpdateStatus_ed($chat_id,'close');}
                     if($Status_ed=='WhoSearch')  {$this->UpdateUser('WhoSearch',$data); $this->UpdateStatus_ed($chat_id,'close');}                    
+                    if($Status_ed=='SendAdmin')  {$this->SendAdmin($data); $this->sendMessage($chat_id, 'Ваше сообщение принято!');  $this->UpdateStatus_ed($chat_id,'close');}                    
                     if($Status_ed=='ImgProfile') 
                     {
                         if (array_key_exists('photo', $data['message'])) {
@@ -600,7 +616,7 @@ class TeleBot extends DataBase
                 ///////////////////////////////////////////////////////////////////////
                 switch($message)
                 {
-                    case '<Связаться с клиентским менеджером>': $send_data = $this->ConnetcWithManager();           break;
+                    case '<Связаться с клиентским менеджером>': $send_data = $this->ConnetcWithManager(); $this->UpdateStatus_ed($chat_id,'SendAdmin'); break;
                     case '<Правила нетворкинга>':               $send_data = $this->TimeLineShow();                 break;
                         ///////////////////////////////////////////////////////////////////////////////////////////////
                     case '<Профиль>':                           $send_data = $this->FormEditProfile($chat_id);      break;
@@ -610,7 +626,7 @@ class TeleBot extends DataBase
                         case '<Фотография!>':                   $send_data = $this->EditPhotoForm();      $this->UpdateStatus_ed($chat_id,'ImgProfile'); break;
                         case '<Не буду пока ничего менять!>':   $send_data = $this->UserPanel($chat_id);            break;
                         ///////////////////////////////////////////////////////////////////////////////////////////////    
-                    case '<Нетворкинг>':                        $send_data = $this->NetworkingShow();               break;
+                    case '<Нетворкинг>':                        $send_data = $this->NetworkingShow();     $this->UpdateStatus_ed($chat_id,'NetSearch'); break;          break;
                         case '<Связаться>':                     $send_data = ['text'=>'Связаться с ...'];           break;
                         case '<Следующий>':                     $send_data = $this->NetworkingShow();               break;
                         case '<Выйти>':                         $send_data = $this->UserPanel($chat_id);            break;
