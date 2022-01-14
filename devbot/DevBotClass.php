@@ -5,7 +5,7 @@ class DataBase
     private $database =     "aa389941_botbase";
     private $username =     "aa389941_meridian246";
     private $password =     "96stYP8BMf7h";
-    protected $ImgUrl =     "https://telebot.tesovii.space/img/";
+    protected $ImgUrl =     "https://telebot.tesovii.space/devbot/img/";
         private function DBConnect()
             {
             $conn = mysqli_connect($this->servername, $this->username, $this->password, $this->database);
@@ -138,7 +138,7 @@ class DataBase
 
 class TeleBot extends DataBase
 {
-    private             $botToken = '1238564789:AAF1kydnaZ_ZWXlBrCXVyKC5RVeOLynCMvg';
+    private             $botToken = '5026319207:AAE77UW_jQZQLeP2GywHKegwkZgvAj1_UgU';
     private             $apiUrl =   "https://api.telegram.org/bot";
     private             $method=    'sendMessage';
         public function  sendMessage($chat_id, $text)
@@ -367,6 +367,7 @@ class TeleBot extends DataBase
         
         public  function Registration($data)   /// Возвращает Status_reg
             {
+                $this->CallInlineBooton($data);
                 $message = mb_convert_encoding($data['message']['text'], "UTF-8");
                 $chat_id = $data['message']['chat']['id'];
                 //Если пользователя нет в базе
@@ -465,9 +466,11 @@ class TeleBot extends DataBase
                 $result = ['text'=>"Регистрация 9:00-10:00\r\nОткрытие 10:00-10:30\r\n\r\nГрибов 10:30-11:15\r\nУшенин 11:15-11:45\r\nБермуда 11:45-12:45\r\n\r\nКофе-брейк 12:45-13:15\r\n\r\nСташкевич 13:15-14:00\r\nВоловик 14:00-14:45\r\nКорс 14:45-15:30\r\nВоронин 15:30-16:30\r\n\r\nОбеденный перерыв 16:30-17:30\r\n\r\nАлексеев 17:30-18:15\r\nЕфремов 18:15-19:00\r\nЗакрытие 19:00-19:30\r\n"];
                 return $result;
             }
-        public function NetworkingShow()
+        public function NetworkingShow($my_chat_id)
             {
-                $User = $this->GetNextUser();
+                $MySelf = $this->GetOneUser('chat_id',$my_chat_id);
+                $My_username = $MySelf['username']; 
+                $User = $this->GetNextUser();                
                 $send_data = 
                 [
                     'text'=> 
@@ -492,7 +495,7 @@ class TeleBot extends DataBase
 
                         ]
                     ],
-                    'reply_markup' => json_encode(array('inline_keyboard' => $this->InlineConnect($User['chat_id']))),
+                    'reply_markup' => json_encode(array('inline_keyboard' => $this->InlineConnect($User['chat_id'],$My_username))),
                     'parse_mode' => 'markdown'
                 ];
                 return $send_data;
@@ -591,18 +594,6 @@ class TeleBot extends DataBase
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-        protected function InlineConnect($chat_id)
-            {
-                //'reply_markup' => json_encode(array('inline_keyboard' => $keyboard))
-                //'reply_markup' => json_encode(array('inline_keyboard' => $this->InlineKeyBoard())),
-                $keyboard = array(
-                    array(
-                    array('text'=>'Связаться!','callback_data'=>'/'.$chat_id),
-                    array('text'=>'test',"callback_data"=>'/test')
-                    )
-                );
-                return $keyboard;
-            }    
         protected function GotoUrl()
             {
                  //'reply_markup' => json_encode(array('inline_keyboard' => $keyboard))
@@ -614,6 +605,40 @@ class TeleBot extends DataBase
                 );
                 return $keyboard;
             }            
+        protected function InlineConnect($chat_id,$my_username)
+            {
+                //'reply_markup' => json_encode(array('inline_keyboard' => $keyboard))
+                //'reply_markup' => json_encode(array('inline_keyboard' => $this->InlineKeyBoard())),
+                //                array('text'=>'test',"callback_data"=>'/test')
+                $keyboard = array(
+                    array(
+                    array('text'=>'Связаться!','callback_data'=>'/connect*'.$chat_id.'*'.'@'.$my_username)
+                    )
+                );
+                return $keyboard;
+            }    
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+        protected function CallInlineBooton($data)
+            {
+                ///////////////////////
+                $callback_query = $data['callback_query'];
+                $call = $callback_query['data'];
+                $chat_idd = $callback_query['message']['chat']['id'];
+                $call = $callback_query['data'];
+                $pieces = explode("*", $call);
+                switch($pieces[0]){
+                    case $pieces[0]:
+                    $this->sendMessage($chat_idd, $pieces[0]);
+                    $this->sendMessage($pieces[1], 'Этот пользователь приглашает вас к общению... надо бы связаться - '.$pieces[2]);
+                    $this->sendMessage($chat_idd, 'Запрос на общение отправлен. Если пользователь захочет, он вам напишет в личку.');
+                    $this->sendMessage($chat_idd, $pieces[2]);
+                    break;
+    
+                }                      
+                $this->sendMessage($chat_idd, $chat_idd);
+                ///////////////////////       
+                return $data;         
+            }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         public function WorkIngBot($data)
             {
@@ -635,16 +660,6 @@ class TeleBot extends DataBase
                         } else {$this->sendMessage($chat_id,'Это не фотография!');}
                     }
                 }                  
-                ///////////////////////////////////////////////////////////////////////
-                $callback_query = $data['callback_query'];
-                $call = $callback_query['data'];
-                $chat_idd = $callback_query['message']['chat']['id'];
-                switch($call){
-                    case '/test':
-                    $this->sendMessage($chat_idd, "test");
-                    break;
-                }              
-                ///////////////////////////////////////////////////////////////////////
                 switch($message)
                 {
                     case '<Связаться с клиентским менеджером>': $send_data = $this->ConnetcWithManager(); $this->UpdateStatus_ed($chat_id,'SendAdmin'); break;
@@ -657,7 +672,7 @@ class TeleBot extends DataBase
                         case '<Фотография!>':                   $send_data = $this->EditPhotoForm();      $this->UpdateStatus_ed($chat_id,'ImgProfile'); break;
                         case '<Не буду пока ничего менять!>':   $send_data = $this->UserPanel($chat_id);            break;
                         ///////////////////////////////////////////////////////////////////////////////////////////////    
-                    case '<Нетворкинг>':                        $send_data = $this->NetworkingShow();     $this->UpdateStatus_ed($chat_id,'NetSearch'); break;
+                    case '<Нетворкинг>':                        $send_data = $this->NetworkingShow($chat_id);     $this->UpdateStatus_ed($chat_id,'NetSearch'); break;
                         case '<Связаться>':                     $send_data = ['text'=>'Связаться с ...'];           break;
                         case '<Следующий>':                     $send_data = $this->NetworkingShow();               break;
                         case '<Выйти>':                         $send_data = $this->UserPanel($chat_id);            break;
@@ -670,61 +685,3 @@ class TeleBot extends DataBase
 }
 
 
-
-//$send_data = ['text'=>'<Ожидайте бот работает в режиме отладки Тест 17 if>'];           
-//$send_data['chat_id'] = $chat_id; $this->sendMessageEnd($send_data);  ///SEND Message test
-/*
-protected function InlineKeyBoard()
-{
-    $keyboard = array(
-        array(
-        array('text'=>':like:','callback_data'=>'{"action":"like","count":0,"text":":like:"}'),
-        array('text'=>':joy:','callback_data'=>'{"action":"joy","count":0,"text":":joy:"}'),
-        array('text'=>':hushed:','callback_data'=>'{"action":"hushed","count":0,"text":":hushed:"}'),
-        array('text'=>':cry:','callback_data'=>'{"action":"cry","count":0,"text":":cry:"}'),
-        array('text'=>':rage:','callback_data'=>'{"action":"rage","count":0,"text":":rage:"}')
-        )
-    );
-}    
-
-
-$data_kb = $data['callback_query'];
-
-
-private function actionInlineButton($callback_data)
-    {
-        // получаем массив из переданного параметра callback_data кнопки inline
-        // разделяем по знаку _
-        // под индексом 0 идет значение actionInlineButton
-        // под последующим индексом 1 идет значение, которое может при создании
-        // кнопки генерироваться под ваши требования, например это может быть id какого-нибудь объекта
-        // значений может быть больше, но общая строка не должна превышать 64 байта
-        $params = explode("_", $callback_data["data"]);
-
-        // отправляем Уведомление
-        $this->botApiQuery("answerCallbackQuery", [
-            "callback_query_id" => $callback_data["id"],
-            "text" => "Событие inline получено",
-            "alert" => false
-        ]);
-
-        // отправляем текстовое сообщение
-        $this->botApiQuery("sendMessage", [
-            "chat_id" => $this->userId,
-            "text" => "Параметр " . $params["1"],
-        ]);
-    }
-
-
-$result = json_decode(file_get_contents('php://input')); // получаем результат нажатия кнопки
-   $inline_keyboard = $result->callback_query->message->reply_markup->inline_keyboard; // текущее состояние кнопок при нажатии на одну из 5 кнопок
-   $data = json_decode($result->callback_query->data, true); // получаем значение с кнопки, а именно с параметра callback_data нажатой кнопки
-   $message_id = $result->callback_query->message->message_id; // ID сообщения в чате
-   $callback_query_id = $result->callback_query->id; //ID полученного результата
-   $user_id = $result->callback_query->from->id; // ID пользователя
-
-   $db_message = $db->super_query("SELECT * FROM bot_like WHERE message_id={$message_id}"); //Ищем в БД ID сообщения
-
-
-
-*/

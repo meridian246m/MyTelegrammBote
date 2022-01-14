@@ -1,5 +1,7 @@
 # MyTelegrammBote
+https://api.telegram.org/bot1238564789:AAF1kydnaZ_ZWXlBrCXVyKC5RVeOLynCMvg/setwebhook?url=https://telebot.tesovii.space/telebot.php
 
+https://api.telegram.org/bot5026319207:AAE77UW_jQZQLeP2GywHKegwkZgvAj1_UgU/setwebhook?url=https://telebot.tesovii.space/devbot/devbot.php
 /*
     1.Сообщения пользователю
     2.Упоминание пользователя tg://user?id=123456789
@@ -127,3 +129,59 @@
   }
 }
 
+
+//$send_data = ['text'=>'<Ожидайте бот работает в режиме отладки Тест 17 if>'];           
+//$send_data['chat_id'] = $chat_id; $this->sendMessageEnd($send_data);  ///SEND Message test
+/*
+protected function InlineKeyBoard()
+{
+    $keyboard = array(
+        array(
+        array('text'=>':like:','callback_data'=>'{"action":"like","count":0,"text":":like:"}'),
+        array('text'=>':joy:','callback_data'=>'{"action":"joy","count":0,"text":":joy:"}'),
+        array('text'=>':hushed:','callback_data'=>'{"action":"hushed","count":0,"text":":hushed:"}'),
+        array('text'=>':cry:','callback_data'=>'{"action":"cry","count":0,"text":":cry:"}'),
+        array('text'=>':rage:','callback_data'=>'{"action":"rage","count":0,"text":":rage:"}')
+        )
+    );
+}    
+
+
+
+
+   $result = json_decode(file_get_contents('php://input')); // получаем результат нажатия кнопки
+   $inline_keyboard = $result->callback_query->message->reply_markup->inline_keyboard; // текущее состояние кнопок при нажатии на одну из 5 кнопок
+   $data = json_decode($result->callback_query->data, true); // получаем значение с кнопки, а именно с параметра callback_data нажатой кнопки
+   $message_id = $result->callback_query->message->message_id; // ID сообщения в чате
+   $callback_query_id = $result->callback_query->id; //ID полученного результата
+   $user_id = $result->callback_query->from->id; // ID пользователя
+
+   $db_message = $db->super_query("SELECT * FROM bot_like WHERE message_id={$message_id}"); //Ищем в БД ID сообщения
+
+
+
+*/
+
+
+   /*     public  function CallInlineBooton($data)
+                    {
+                        ///////////////////////
+                        $callback_query = $data['callback_query'];
+                        //$call = $callback_query['data'];
+                        $chat_idd = $callback_query['message']['chat']['id'];
+                        $this->sendMessage($chat_idd, $chat_idd);
+                        $call = $callback_query['data'];
+                        switch($call){
+                            case '/test':
+                            $this->sendMessage($chat_idd, "test");
+                            break;
+                            default:
+                            $data=$data;
+                        }                      
+                        ///////////////////////       
+                        return $data;         
+                    }*/
+
+                    //md246Devbot
+//5026319207:AAE77UW_jQZQLeP2GywHKegwkZgvAj1_UgU
+//t.me/md246Devbot
