@@ -60,6 +60,14 @@ class DataBase
                 mysqli_query($link, $sql);
                 $this->DBDisconnect( $link );
             }
+        protected function SaveUserProfileFoto($chat_id,$filename)
+            {
+                $url    =   $this->ImgUrl.$filename;
+                $link   =   $this->DataBaseConnect();
+                $sql = "UPDATE data_user SET ImgProfile='".$url."' WHERE chat_id=".$chat_id;
+                $$result = mysqli_query($link, $sql);
+                return $result;
+            }
         protected function GetOneUser($field,$variable){
             $link   =   $this->DBConnect();
             $sql    =   "SELECT * FROM users WHERE ".$field."='".$variable."' LIMIT 1";
@@ -534,7 +542,27 @@ class TeleBot extends DataBase
                 return $send_data;
             }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-        public function WorkIngBot($data)
+        private function SaveUserPhoto($data) 
+        {
+            $Photo = $data['message']['photo'];
+            $chat_id = $data['message']['chat']['id'];
+            $file_id = $Photo[count($Photo) - 2]['file_id'];
+            $array = json_decode($this->requestToTelegram(['file_id' => $file_id], "getFile"), TRUE);
+            $file_path = $array['result']['file_path'];
+            $User = $this->GetOneUser('chat_id',$chat_id);   $OldFilename = $User['ImgProfile'];
+            if (file_exists($OldFilename)) {unlink($OldFilename);}
+            $file_from_tgrm = "https://api.telegram.org/file/bot".$this->botToken."/".$file_path;
+            $ext =  end(explode(".", $file_path));
+            $name_our_new_file = time().".".$ext;
+            $this->SaveUserProfileFoto($chat_id,$name_our_new_file);
+            $re = Array();
+            $re['copy'] = copy($file_from_tgrm, "img/".$name_our_new_file);
+            $re['name'] = $name_our_new_file;
+            $re['boolean'] = true;
+            return $re;
+        }
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+    public function WorkIngBot($data)
             {
                 $message = mb_convert_encoding($data['message']['text'], "UTF-8");
                 $chat_id = $data['message']['chat']['id'];
@@ -547,12 +575,7 @@ class TeleBot extends DataBase
                     if($Status_ed=='Name')       {$this->UpdateUser('Name',     $data); $this->UpdateStatus_ed($chat_id,'close');}
                     if($Status_ed=='AboutSelf')  {$this->UpdateUser('AboutSelf',$data); $this->UpdateStatus_ed($chat_id,'close');}
                     if($Status_ed=='WhoSearch')  {$this->UpdateUser('WhoSearch',$data); $this->UpdateStatus_ed($chat_id,'close');}
-                    if($Status_ed=='ImgProfile')        
-                    {
-                        //$FotoBott = new Bot;
-                        //$res = $FotoBott->init('php://input');
-                        //$DB->UpdateUserDataFoto('NewView',   $chat_id,$res); $DB->UpdateStatus_ed($chat_id,'close');
-                    }
+                    if($Status_ed=='ImgProfile') {$this->SaveUserPhoto($data);          $this->UpdateStatus_ed($chat_id,'close');}
                 }                                
                 ///////////////////////////////////////////////////////////////////////
                 switch($message)
@@ -583,4 +606,5 @@ class TeleBot extends DataBase
 
 //$send_data = ['text'=>'<Ожидайте бот работает в режиме отладки Тест 17 if>'];           
 //$send_data['chat_id'] = $chat_id; $this->sendMessageEnd($send_data);  ///SEND Message test
+
 
